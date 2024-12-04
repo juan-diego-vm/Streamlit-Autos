@@ -18,6 +18,35 @@ data = [
 # Crear un DataFrame con los datos
 df = pd.DataFrame(data, columns=columns)
 
+# Estado para mostrar el formulario
+if "show_form" not in st.session_state:
+    st.session_state.show_form = False
+
+# Botón para mostrar el formulario de agregar vehículos
+if st.button("➕ Agregar vehículo"):
+    st.session_state.show_form = True
+
+# Mostrar el formulario si el botón fue presionado
+if st.session_state.show_form:
+    with st.form("Agregar vehículo"):
+        nueva_placa = st.text_input("Placa")
+        nuevo_modelo = st.text_input("Modelo")
+        nuevo_anio = st.number_input("Año", min_value=1900, max_value=datetime.now().year, step=1, value=2022)
+        nuevo_dueno = st.text_input("Dueño Actual")
+        # nuevo_reporte = st.text_input("Reporte")
+        # nueva_calificacion = st.slider("Calificación", min_value=0.0, max_value=10.0, step=0.1)
+        
+        # Botón para guardar los datos
+        guardar = st.form_submit_button("Guardar")
+
+        if guardar:
+            # Agregar los nuevos datos al DataFrame
+            nueva_fecha = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+            nuevo_dato = [nueva_placa, nuevo_modelo, nuevo_anio, nuevo_dueno, nueva_fecha, 'En proceso...', 'En proceso...']
+            df.loc[len(df)] = nuevo_dato
+            st.success("Vehículo agregado exitosamente.")
+            st.session_state.show_form = False
+
 # Función para aplicar colores según la calificación
 def highlight_calification(val):
     if val <= 5:
@@ -27,24 +56,6 @@ def highlight_calification(val):
     elif val > 7:
         return "background-color: green; color: white;"
     return ""
-
-# Botón para agregar vehículos
-col1, col2 = st.columns([3, 1])
-with col1:
-    pass  # Espacio para el título
-with col2:
-    if st.button("Agregar vehículo"):
-        new_data = [
-            "XXX000", 
-            "Modelo X", 
-            2022, 
-            "Nuevo Dueño", 
-            datetime.now().strftime("%Y/%m/%d %H:%M:%S"), 
-            "Sin reporte", 
-            6.5  # Calificación de ejemplo
-        ]
-        df.loc[len(df)] = new_data
-        st.success("Vehículo agregado exitosamente.")
 
 # Aplicar estilos condicionales solo a la columna "Calificación"
 styled_df = df.style.applymap(highlight_calification, subset=["Calificación"])
